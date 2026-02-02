@@ -4,6 +4,9 @@ Main Simulation Engine.
 Integrates all modules to perform time-domain simulation.
 """
 
+from mp_shm_x2.config import ParamFunc
+
+
 import numpy as np
 from dataclasses import dataclass, field
 from typing import List, Dict, Optional
@@ -50,8 +53,8 @@ class SimulationEngine:
         self.t = 0.0
         self.z = 1.0 # Initial SOC
         self.Vp = 0.0
-        self.Tc = self.params.T_amb
-        self.Ts = self.params.T_amb
+        self.Tc: ParamFunc = self.params.T_amb
+        self.Ts: ParamFunc = self.params.T_amb
         
         # Inputs (from user model / stochastic)
         # Placeholders for now, would come from S(t) -> Lookup Table
@@ -67,15 +70,22 @@ class SimulationEngine:
         Map user state to physical inputs. 
         In a real app, this would be a config lookup.
         """
-        if state == "Idle":
-            return 0.2, 0.0, 0.0 # Low freq, screen off
-        elif state == "Video":
-            return 1.0, 400.0, 0.6
-        elif state == "Game":
-            return 2.5, 800.0, 0.8
-        elif state == "Call":
-            return 0.5, 0.0, 0.0 # Screen off, some CPU
-        return 0.5, 200.0, 0.5
+        # Default fallback values
+        default_params = {
+            "f_base": 0.5,
+            "L_base": 200.0,
+            "APL_base": 0.5,
+            "lambda_net": 0.0
+        }
+        
+        params = self.params.user_params.get(state, default_params)
+        
+        f_base = params.get("f_base", default_params["f_base"])
+        L_base = params.get("L_base", default_params["L_base"])
+        APL_base = params.get("APL_base", default_params["APL_base"])
+        lambda_net = params.get("lambda_net", default_params["lambda_net"])
+        
+        return f_base, L_base, APL_base, lambda_net
 
     def step(self):
         """
@@ -88,15 +98,15 @@ class SimulationEngine:
         
         # Map state to inputs
         # (This is a simplification; in full model, these come from lookups)
-        f_cpu, L_scr, APL = self._get_inputs_for_state(current_user_state)
+        f_cpu, L_scr, APL, lambda_net = self._get_inputs_for_state(current_user_state)
         
         # Network packet arrival (Stochastic Poisson process)
         # Simplified: Random check based on state?
         # For now: No packets unless in specific states
         packet_arrival = False
-        if current_user_state in ["Game", "Video"]:
-             if np.random.random() < 0.1: # 10% chance per second
-                 packet_arrival = True
+        # Poisson process: P(arrival in dt) = 1 - exp(-lambda * dt) approx lambda * dt
+        if np.random.random() < lambda_net * dt:
+             packet_arrival = True
 
         # 2. Calculate System Power
         # Note: Stochastic updates happen inside power_model components

@@ -125,7 +125,7 @@ class SimulationParams:
     # Dictionaries to simulate lookup tables
     user_params: Dict[str, Dict[str, float]] = field(default_factory=lambda: {
         "Idle": {
-            "mu_dwell": np.log(7200.0), "sigma_dwell": 0.5,
+            "mu_dwell": np.log(3600.0), "sigma_dwell": 0.5,
             "f_base": 0.2, "L_base": 0.0, "APL_base": 0.0,
             "lambda_net": 0.01
         },
@@ -143,6 +143,11 @@ class SimulationParams:
             "mu_dwell": np.log(300.0), "sigma_dwell": 0.2,
             "f_base": 0.5, "L_base": 0.0, "APL_base": 0.0,
             "lambda_net": 0.05
+        },
+        "Camera": {
+            "mu_dwell": np.log(60.0), "sigma_dwell": 0.5,
+            "f_base": 0.5, "L_base": 200.0, "APL_base": 0.5,
+            "lambda_net": 0.01
         }
     })
 

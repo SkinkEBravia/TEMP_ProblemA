@@ -139,7 +139,11 @@ def main():
     # Initialize Engine
     engine = SimulationEngine(params)
     
-    print("Starting detailed simulation (Target: 100% -> 0% SOC)...")
+    print(f"Starting detailed simulation (Target: 100% -> 0% SOC)...")
+    print(f"Configuration:")
+    print(f"  - dt: {params.dt}s")
+    print(f"  - Battery Capacity: {params.Q_design} Ah")
+    print(f"  - User Params Keys: {list(params.user_params.keys())}")
     
     # Run
     max_duration = 48 * 3600 

@@ -9,4 +9,5 @@ build/
 .DS_Store
 *.ipynb
 *.png
-
+Data/
+*.parquet

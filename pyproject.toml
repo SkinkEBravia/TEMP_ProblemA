@@ -12,6 +12,10 @@ dependencies = [
     "sympy>=1.14.0",
     "PySide6>=6.8.1",
     "pytest>=9.0.2",
+    "pandas>=3.0.0",
+    "seaborn>=0.13.2",
+    "nbconvert>=7.17.0",
+    "pyarrow>=23.0.0",
 ]
 
 [[tool.uv.index]]
